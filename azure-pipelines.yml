@@ -39,3 +39,14 @@ stages:
     - script: |
         docker build -t azure-pipeline-demo:$(Build.BuildId) .
       displayName: 'Build Docker Image'
+
+    - script: |
+        docker save azure-pipeline-demo:$(Build.BuildId) \
+        -o $(Build.ArtifactStagingDirectory)/azure-pipeline-demo.tar
+      displayName: 'Save Docker Image'
+
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Build.ArtifactStagingDirectory)/azure-pipeline-demo.tar'
+        artifact: 'docker-image'
+      displayName: 'Publish Docker Image Artifact'
