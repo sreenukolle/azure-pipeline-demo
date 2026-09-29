@@ -2,56 +2,39 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-24.04
 
-stages:
+steps:
 
-- stage: Build
-  displayName: 'Build Application'
+- checkout: self
 
-  jobs:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.12'
 
-  - job: BuildApplication
-    displayName: 'Build Flask Application'
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+    pip install pytest
+  displayName: Install dependencies
 
-    steps:
+- script: |
+    echo "Current directory:"
+    pwd
+    echo "Repository files:"
+    find . -maxdepth 2 -type f
+  displayName: Verify files
 
-    - checkout: self
-      displayName: 'Checkout Source Code'
+- script: |
+    pytest -v
+  displayName: Run tests
 
-    - script: |
-        python --version
-        pip --version
-      displayName: 'Check Python Version'
-
-    - script: |
-        pip install -r requirements.txt
-      displayName: 'Install Dependencies'
-
-    - script: |
-        python -m py_compile app.py
-      displayName: 'Validate Application'
-
-    - script: |
-        echo "===== CURRENT DIRECTORY ====="
-        pwd
-
-        echo "===== FILES IN REPOSITORY ====="
-        find . -maxdepth 3 -type f -print
-
-        echo "===== CHECK app.py ====="
-        ls -l app.py || true
-
-        echo "===== PYTHON VERSION ====="
-        python --version
-
-        echo "===== PYTHON PATH ====="
-        python -c "import sys; print('\n'.join(sys.path))"
-
-        echo "===== TEST FILE ====="
-        cat tests/test_app.py
-      displayName: Debug Python Project
-
-    - script: |
-        docker build -t azure-pipeline-demo:$(Build.BuildId) .
-      displayName: 'Build Docker Image'
+- task: Docker@2
+  displayName: Build Docker Image
+  inputs:
+    command: build
+    repository: azure-pipeline-demo
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      $(Build.BuildId)
+      latest
