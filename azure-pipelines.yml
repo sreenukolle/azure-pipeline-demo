@@ -33,7 +33,7 @@ stages:
       displayName: 'Validate Application'
 
     - script: |
-        pytest
+        python -m pytest
       displayName: 'Run Automated Tests'
 
     - script: |
