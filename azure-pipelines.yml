@@ -33,24 +33,24 @@ stages:
       displayName: 'Validate Application'
 
     - script: |
-    echo "===== CURRENT DIRECTORY ====="
-    pwd
+        echo "===== CURRENT DIRECTORY ====="
+        pwd
 
-    echo "===== FILES IN REPOSITORY ====="
-    find . -maxdepth 3 -type f -print
+        echo "===== FILES IN REPOSITORY ====="
+        find . -maxdepth 3 -type f -print
 
-    echo "===== CHECK app.py ====="
-    ls -l app.py || true
+        echo "===== CHECK app.py ====="
+        ls -l app.py || true
 
-    echo "===== PYTHON VERSION ====="
-    python --version
+        echo "===== PYTHON VERSION ====="
+        python --version
 
-    echo "===== PYTHON PATH ====="
-    python -c "import sys; print('\n'.join(sys.path))"
+        echo "===== PYTHON PATH ====="
+        python -c "import sys; print('\n'.join(sys.path))"
 
-    echo "===== TEST FILE ====="
-    cat tests/test_app.py
-  displayName: Debug Python Project
+        echo "===== TEST FILE ====="
+        cat tests/test_app.py
+      displayName: Debug Python Project
 
     - script: |
         docker build -t azure-pipeline-demo:$(Build.BuildId) .
