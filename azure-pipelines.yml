@@ -2,39 +2,36 @@ trigger:
 - main
 
 pool:
-  vmImage: ubuntu-24.04
+  vmImage: ubuntu-latest
 
-steps:
+stages:
 
-- checkout: self
+- stage: Build
+  displayName: 'Build Application'
 
-- task: UsePythonVersion@0
-  inputs:
-    versionSpec: '3.12'
+  jobs:
 
-- script: |
-    python -m pip install --upgrade pip
-    pip install -r requirements.txt
-    pip install pytest
-  displayName: Install dependencies
+  - job: BuildApplication
+    displayName: 'Build Flask Application'
 
-- script: |
-    echo "Current directory:"
-    pwd
-    echo "Repository files:"
-    find . -maxdepth 2 -type f
-  displayName: Verify files
+    steps:
 
-- script: |
-    pytest -v
-  displayName: Run tests
+    - checkout: self
+      displayName: 'Checkout Source Code'
 
-- task: Docker@2
-  displayName: Build Docker Image
-  inputs:
-    command: build
-    repository: azure-pipeline-demo
-    Dockerfile: '**/Dockerfile'
-    tags: |
-      $(Build.BuildId)
-      latest
+    - script: |
+        python --version
+        pip --version
+      displayName: 'Check Python Version'
+
+    - script: |
+        pip install -r requirements.txt
+      displayName: 'Install Dependencies'
+
+    - script: |
+        python -m py_compile app.py
+      displayName: 'Validate Application'
+
+    - script: |
+        docker build -t azure-pipeline-demo:$(Build.BuildId) .
+      displayName: 'Build Docker Image'
