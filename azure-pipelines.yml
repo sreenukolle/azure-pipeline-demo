@@ -31,9 +31,11 @@ stages:
     - script: |
         python -m py_compile app.py
       displayName: 'Validate Application'
+
     - script: |
         pytest
-      displayName: 'Run Automated Tests'  
+      displayName: 'Run Automated Tests'
+
     - script: |
         docker build -t azure-pipeline-demo:$(Build.BuildId) .
       displayName: 'Build Docker Image'
